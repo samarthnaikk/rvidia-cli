@@ -1,11 +1,14 @@
+
 # rvidia-cli
 
-A command-line interface (CLI) tool for interacting with [rvidia](https://github.com/samarthnaikk/rvidia1), an open-source project for running and managing NVIDIA GPU workloads with ease.
+A command-line interface (CLI) tool for shared computing, supporting local and cross-network modes. Phase 1 focuses on local mode for users on the same network.
 
-## Features
-- Simple commands to manage and monitor NVIDIA GPUs
-- Integration with rvidia backend
-- Easy installation and usage
+## Features (Phase 1)
+- Local mode: Register users and join a shared room
+- See all users running the CLI on the same network
+- First user becomes admin and can share selected data files
+- Admin generates a Dockerfile including chosen files from `rvidia-data/data` and `app.py`
+- Cross-network mode: Coming soon
 
 ## Installation
 
@@ -14,7 +17,7 @@ Clone this repository and install dependencies:
 ```bash
 git clone https://github.com/samarthnaikk/rvidia-cli.git
 cd rvidia-cli
-# Install dependencies (update this step based on your language, e.g. npm install, pip install -r requirements.txt, etc.)
+pip install -r requirements.txt
 ```
 
 ## Usage
@@ -22,15 +25,24 @@ cd rvidia-cli
 Run the CLI tool:
 
 ```bash
-# Example usage (update with actual command)
-./rvidia-cli [options]
+python app.py --mode local
 ```
 
-### Example Commands
-- `rvidia-cli status` — Show GPU status
-- `rvidia-cli monitor` — Monitor GPU usage
-- `rvidia-cli help` — Show help message
+### Local Mode Flow
+1. Choose mode: local or cross-network (cross-network displays "coming soon")
+2. Enter your username
+3. Join the room and see all users present
+4. First user is admin; admin selects which data files to share
+5. Dockerfile is generated in `rvidia-data/Dockerfile` including selected files
 
+## Example
+
+```bash
+python app.py --mode local
+# Enter username when prompted
+# If you are admin, select data files to share (e.g. 1,2)
+# Dockerfile will be created in rvidia-data/
+```
 
 ## License
 [MIT](LICENSE)
