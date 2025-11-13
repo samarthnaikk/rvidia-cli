@@ -3,21 +3,30 @@ import socket
 import time
 
 # rvidia-cli: Shared Computing CLI Tool
-import argparse
-from rich.console import Console
-from rich.prompt import Prompt
 
-console = Console()
+import argparse
+from ui import show_header, mode_selection, show_room_table, select_data_files
 
 def main():
+    show_header()
     parser = argparse.ArgumentParser(description="rvidia-cli: Shared Computing CLI Tool")
-    parser.add_argument('--mode', choices=['local', 'cross-network'], default='local', help='Choose mode: local or cross-network')
+    parser.add_argument('--mode', choices=['local', 'cross-network'], default=None, help='Choose mode: local or cross-network')
     args = parser.parse_args()
 
-    if args.mode == 'cross-network':
-        console.print('[bold yellow]Cross network mode coming soon![/bold yellow]')
+    # Mode selection UI
+    mode = args.mode
+    if not mode:
+        mode = mode_selection()
+        mode = 'local' if mode == '1' else 'cross-network'
+
+    if mode == 'cross-network':
+        from rich.console import Console
+        Console().print('[bold yellow]Cross network mode coming soon![/bold yellow]')
         return
     else:
+        from rich.prompt import Prompt
+        from rich.console import Console
+        console = Console()
         console.print('[bold green]Local mode selected.[/bold green]')
         username = Prompt.ask('Enter your username')
         room_file = 'local_room.txt'
@@ -37,24 +46,14 @@ def main():
         admin = users[0] if users else user_entry
         is_admin = (user_entry == admin)
 
-        # Display room members and admin
-        console.print('[bold blue]Users in the room:[/bold blue]')
-        for user in users:
-            if user == admin:
-                console.print(f'- {user} [bold red](admin)[/bold red]')
-            else:
-                console.print(f'- {user}')
+        # Display room members and admin as table
+        show_room_table(users, admin)
 
         if is_admin:
             # If admin, prompt to select data files to share and generate Dockerfile
             data_dir = os.path.join('rvidia-data', 'data')
             files = [f for f in os.listdir(data_dir) if os.path.isfile(os.path.join(data_dir, f))]
-            console.print("\nSelect data files to share (comma separated, e.g. 1,2):")
-            for idx, fname in enumerate(files, 1):
-                console.print(f"[{idx}] {fname}")
-            selected = Prompt.ask("Enter file numbers", default="1")
-            selected_idxs = [int(i.strip()) for i in selected.split(',') if i.strip().isdigit() and 1 <= int(i.strip()) <= len(files)]
-            selected_files = [files[i-1] for i in selected_idxs]
+            selected_files = select_data_files(files)
 
             # Generate Dockerfile
             dockerfile_path = os.path.join('rvidia-data', 'Dockerfile')
@@ -67,8 +66,6 @@ def main():
                 df.write('RUN pip install -r requirements.txt\n')
                 df.write('CMD ["python", "app.py"]\n')
             console.print(f'[bold green]Dockerfile generated at {dockerfile_path}[/bold green]')
-            console.print('[bold green]You are the admin.[/bold green]')
-        elif is_admin:
             console.print('[bold green]You are the admin.[/bold green]')
 
         # Display room members and admin

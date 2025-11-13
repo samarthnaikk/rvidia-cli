@@ -9,6 +9,7 @@ plan.txt
 rvidia-data
 # Distribution / packaging
 .Python
+local_room.txt
 env/
 build/
 develop-eggs/
